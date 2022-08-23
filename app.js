@@ -1,10 +1,13 @@
 const express = require("express");
 const app = express();
 const Web3 = require("web3");
+const nftABI = require("./nftABI");
 
 const privateKey = `bc5d4ef2324a7f8b488b92ffec3076b3ebe2d03ba52cefe3217feeb91ac3d4b2`;
 const fromAddress = `0x4CEC56Ec01dB05f69dBe8249B8cDd95cAe286178`;
 const toAddress = `0x9a3BB1d4a14e4B75B4cD785f3BE201D648ba6B31`;
+
+const CA = `0x892A372AA7847B7175BAde20d9570E1F8f55e7A9`;
 
 let web3;
 
@@ -31,9 +34,17 @@ const sendSignedTx = async (fromAddress, toAddress, value, data) => {
   console.log("result", result);
 };
 
+const callSCF = async () => {
+  const contract = new web3.eth.Contract(nftABI, CA);
+  const func = contract.methods.safeMint(fromAddress, "https://www.naver.com");
+  const callData = func.encodeABI();
+  console.log(callData);
+  const result = await sendSignedTx(fromAddress, CA, 0, callData);
+};
+
 app.get("/", (req, res) => {
   connect();
-  sendSignedTx(fromAddress, toAddress, 1e18);
+  callSCF();
   res.json("Hello world");
 });
 
